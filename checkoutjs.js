@@ -35,16 +35,14 @@
 
             {% if first_time_accessed %}
 
-                {% if customer %}
                   // Identifying a person and tracking special Klaviyo properties.
                   console.log("hello person: " + '{{ customer.email }}' );
                 
                   _learnq.push(['identify', {
-                    '$email' : '{{ customer.email }}',
-                    '$first_name' : '{{ customer.first_name }}',
-                    '$last_name' : '{{ customer.last_name }}'
+                    '$email' : '{{ checkout.customer.email }}',
+                    '$first_name' : '{{ checkout.customer.first_name }}',
+                    '$last_name' : '{{ checkout.customer.last_name }}'
                   }]);
-                {%  endif %}
 
 
                 //console.log('Klaviyo event "Ordered Product" fired');
