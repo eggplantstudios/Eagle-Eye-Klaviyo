@@ -1,0 +1,41 @@
+<!-- Send data to Klaviyo. ->
+<!-- use this to test: https://cad.eagle-eye.com/58079641800/orders/4055cf17d1b7fc92213c0d0fc303eb76 -->
+<script type="text/javascript" async="" src="https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=UrduUr"></script>
+
+<script type="text/javascript">
+
+    // tossing around the idea of placing everything in on load
+
+    var _learnq = _learnq || [];
+
+	{% for line_item in checkout.line_items %}
+
+    const item = {
+        "Vendor": "Eagle-Eye Tours",
+	    "Collections": "",
+        "Name": {{ line_item.title | json }},
+		"Ordered Product Value": {{ line_item.price | money_without_currency | remove: "," | json }},
+	    "ProductID": "{{ line_item.product_id | json }}",
+	    "Quantity": {{ line_item.quantity | json }},
+		"SKU": "{{ line_item.sku }}",
+        "Variant": {{ line_item.options_with_values | json }},
+    }
+
+	{% if first_time_accessed %}
+
+    // Identifying a person and tracking special Klaviyo properties.
+
+    _learnq.push(['identify', {
+        '$email' : '{{ checkout.customer.email }}',
+        '$first_name' : '{{ checkout.customer.first_name }}',
+        '$last_name' : '{{ checkout.customer.last_name }}'
+    }]);
+
+
+    //console.log('Klaviyo event "Ordered Product" fired');
+    //console.log( item );
+    _learnq.push(["track", "Ordered CAD Product", item ]);
+
+	{% endif %}
+	{% endfor %}
+</script>

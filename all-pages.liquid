@@ -1,0 +1,115 @@
+<!-- Tracking Scripts - Send data to Klaviyo.  -->
+
+<script type="text/javascript" async="" src="https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=UrduUr"></script>
+
+
+<script type="text/javascript">
+
+
+    var _learnq = _learnq || [];
+
+
+    {% if customer %}
+	    // Identifying a person
+	    _learnq.push(['identify', {
+		    '$email' : '{{ customer.email }}',
+		    '$first_name' : '{{ customer.first_name }}',
+		    '$last_name' : '{{ customer.last_name }}'
+		}]);
+    {%  endif %}
+
+
+
+
+    {% case template.name %}
+
+    /**
+    *
+    * Product
+    *
+    */
+    {% when 'product' %}
+
+	    const item = {
+	        "ProductName": "{{ product.title | remove: "'" | remove: '"' }}: {{ product.selected_or_first_available_variant.title | remove: "'" | remove: '"' }}",
+	        "ProductID": "{{ product.id }}",
+	        "SKU": {{ product.selected_or_first_available_variant.sku | json }},
+	        "URL": "{{product.url}}",
+	        "Brand": "Eagle-Eye Tours",
+	        "Price": '{{ product.price | money_without_currency | remove: ","}}'
+	    };
+
+	    _learnq.push(["track", "Viewed CAD Product", item]);
+	    //console.log( item );
+	    //console.log('Klaviyo event "Viewed Product" fired.' );
+
+	    let addToCartElement = document.querySelector('form button.btn-success');
+
+	    if( addToCartElement )
+	    {
+
+	        addToCartElement.addEventListener('click', function (e) {
+
+	            const item = {
+	                "$value": '{{ product.price | money_without_currency | remove: ","}}',
+	                "AddedItemProductName": "{{ product.title | remove: "'" | remove: '"' }}: {{ product.selected_or_first_available_variant.title | remove: "'" | remove: '"' }}",
+	                "AddedItemProductID": "{{ product.id }}",
+	                "AddedItemSKU": {{ product.selected_or_first_available_variant.sku | json }},
+	                "AddedItemPrice": '{{ product.price | money_without_currency | remove: ","}}',
+	                "AddedItemQuantity": 1
+
+	            };
+
+	            _learnq.push(["track", "Added to CAD Cart", item]);
+	            //console.log( item );
+	            //console.log('Klaviyo event "Added to Cart" fired.' );
+	        });
+
+	    }
+
+
+    {% when 'cart' %}
+
+	    let checkoutElement = document.querySelector('form button.btn-success');
+
+	    if( checkoutElement )
+	    {
+
+            checkoutElement.addEventListener('click', function (e) {
+
+	            const item = {
+	                "$event_id": '{{ cart.items_subtotal_price | md5 }}',
+	                "$value": '{{ cart.items_subtotal_price | money_without_currency | remove: ","}}',
+	                "items": '{{ cart.item_count }}',
+	                "itemNames": '{% for line_item in cart.items %}{{ line_item.product.title | remove: "'" | remove: '"' }},{% endfor %}',
+	                "Items": [
+	                    {% for line_item in cart.items %}
+	            {
+	                "ProductName": "{{ line_item.product.title | remove: "'" | remove: '"' }}",
+	                "Variant": {{ line_item.options_with_values | json }},
+	                "ProductID": "{{ line_item.product_id }}",
+	                "SKU": {{ line_item.sku | json }},
+	                "Brand": "Eagle-Eye Tours",
+	                "Quantity": "{{ line_item.quantity }}",
+	                "Price": "{{ line_item.price | money_without_currency | remove: ","}}",
+	                "Total Price": '{{ line_item.line_price | money_without_currency | remove: ","}}'
+	            },
+	            {% endfor %}
+	        ]
+
+
+	        };
+
+	            _learnq.push(["track", "Started CAD Checkout", item]);
+	            //console.log( item );
+	            //console.log('Klaviyo event "Started CAD Checkout" fired.' );
+	        });
+
+	    }
+
+    {% endcase %}
+
+
+
+</script>
+
