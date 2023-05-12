@@ -31,13 +31,16 @@
     {% when 'product' %}
 
 	    const item = {
-	        "ProductName": "{{ product.title | remove: "'" | remove: '"' }}: {{ product.selected_or_first_available_variant.title | remove: "'" | remove: '"' }}",
+            "ProductName": "{{ product.title | remove: "'" | remove: '"' }}: {{ product.selected_or_first_available_variant.title | remove: "'" | remove: '"' }}",
+            "VariantName": "{{ product.selected_or_first_available_variant.title | remove: "'" | remove: '"' }}",
 	        "ProductID": "{{ product.id }}",
-	        "SKU": {{ product.selected_or_first_available_variant.sku | json }},
-	        "URL": "{{product.url}}",
+            "VariantID":  "{{ product.selected_or_first_available_variant.id | remove: "'" | remove: '"' }}",
+            "Type":  {{ product.type| json }},
+            "SKU": {{ product.selected_or_first_available_variant.sku | json }},
+            "Price": '{{ product.price | money_without_currency | remove: ","}}',
 	        "Brand": "Eagle-Eye Tours",
-	        "Price": '{{ product.price | money_without_currency | remove: ","}}'
-	    };
+            "URL": "{{product.url}}"
+        };
 
 	    _learnq.push(["track", "Viewed CAD Product", item]);
 	    //console.log( item );
@@ -52,12 +55,16 @@
 
 	            const item = {
 	                "$value": '{{ product.price | money_without_currency | remove: ","}}',
-	                "AddedItemProductName": "{{ product.title | remove: "'" | remove: '"' }}: {{ product.selected_or_first_available_variant.title | remove: "'" | remove: '"' }}",
-	                "AddedItemProductID": "{{ product.id }}",
-	                "AddedItemSKU": {{ product.selected_or_first_available_variant.sku | json }},
-	                "AddedItemPrice": '{{ product.price | money_without_currency | remove: ","}}',
-	                "AddedItemQuantity": 1
-
+                    "ProductName": "{{ product.title | remove: "'" | remove: '"' }}: {{ product.selected_or_first_available_variant.title | remove: "'" | remove: '"' }}",
+                    "VariantName": "{{ product.selected_or_first_available_variant.title | remove: "'" | remove: '"' }}",
+                    "ProductID": "{{ product.id }}",
+                    "VariantID":  "{{ product.selected_or_first_available_variant.id | remove: "'" | remove: '"' }}",
+                    "Type":  {{ product.type| json }},
+	                "SKU": {{ product.selected_or_first_available_variant.sku | json }},
+	                "Price": '{{ product.price | money_without_currency | remove: ","}}',
+                    "Brand": "Eagle-Eye Tours",
+                    "URL": "{{product.url}}",
+                    "Quantity": 1
 	            };
 
 	            _learnq.push(["track", "Added to CAD Cart", item]);
@@ -75,34 +82,30 @@
 	    if( checkoutElement )
 	    {
 
+
             checkoutElement.addEventListener('click', function (e) {
 
-	            const item = {
-	                "$event_id": '{{ cart.items_subtotal_price | md5 }}',
-	                "$value": '{{ cart.items_subtotal_price | money_without_currency | remove: ","}}',
-	                "items": '{{ cart.item_count }}',
-	                "itemNames": '{% for line_item in cart.items %}{{ line_item.product.title | remove: "'" | remove: '"' }},{% endfor %}',
-	                "Items": [
-	                    {% for line_item in cart.items %}
-	            {
-	                "ProductName": "{{ line_item.product.title | remove: "'" | remove: '"' }}",
-	                "Variant": {{ line_item.options_with_values | json }},
-	                "ProductID": "{{ line_item.product_id }}",
-	                "SKU": {{ line_item.sku | json }},
-	                "Brand": "Eagle-Eye Tours",
-	                "Quantity": "{{ line_item.quantity }}",
-	                "Price": "{{ line_item.price | money_without_currency | remove: ","}}",
-	                "Total Price": '{{ line_item.line_price | money_without_currency | remove: ","}}'
-	            },
+	            {% for line_item in cart.items %}
+
+	                const item = {
+                        "$event_id": {{ line_item.key | json }},
+                        "ProductName": "{{ line_item.product.title | remove: "'" | remove: '"' }}",
+                        "VariantName": "{{ line_item.variant.title | remove: "'" | remove: '"' }}",
+                        "ProductID": "{{ line_item.product_id }}",
+                        "VariantID": "{{ line_item.variant_id }}",
+		                "ProductType": {{  line_item.product.type |  json }},
+                        "Variant": {{ line_item.options_with_values | json }},
+                        "SKU": {{ line_item.sku | json }},
+                        "Brand": "Eagle-Eye Tours",
+                        "Quantity": "{{ line_item.quantity }}",
+                        "Price": "{{ line_item.price | money_without_currency | remove: ","}}",
+                    };
+
+                    _learnq.push(["track", "Started CAD Checkout", item]);
+	                //console.log( item );
+	                //console.log('Klaviyo event "Started CAD Checkout" fired.' );
 	            {% endfor %}
-	        ]
-
-
-	        };
-
-	            _learnq.push(["track", "Started CAD Checkout", item]);
-	            //console.log( item );
-	            //console.log('Klaviyo event "Started CAD Checkout" fired.' );
+				alert('added');
 	        });
 
 	    }

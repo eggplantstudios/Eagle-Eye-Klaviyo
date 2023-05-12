@@ -8,43 +8,34 @@
 
     var _learnq = _learnq || [];
 
-    {% for line_item in checkout.line_items %}
+	{% if first_time_accessed %}
+	    _learnq.push(['identify', {
+	        '$email' : '{{ checkout.customer.email }}',
+	        '$first_name' : '{{ checkout.customer.first_name }}',
+	        '$last_name' : '{{ checkout.customer.last_name }}'
+	    }]);
+	{%  endif %}
 
-        const item = {
-            "customer_properties": {
-                "$email": "{{ checkout.customer.email }}",
-                "$first_name": "{{ checkout.customer.first_name }}",
-                "$last_name": "{{ checkout.customer.last_name }}"
-            },
-            "properties": {
-                "$event_id": "{{ checkout.order_id }}-{{ line_item.product_id | json }}",
-                "$value": {{ line_item.price | money_without_currency | remove: "," | json }},
-                "OrderId": "{{ checkout.order_id }}",
-                "ProductID": "{{ line_item.product_id | json }}",
-                {% if line_item.sku != null  %}
-                "SKU": "{{ line_item.sku }}",
-                {% endif %}
-                "ProductName": {{ line_item.title | json }},
-                "Quantity": {{ line_item.quantity | json }}
-            },
-            "time": {{ 'now' | date: "%s"}}
-        }
+	{% for line_item in checkout.line_items %}
 
-        {% if first_time_accessed %}
+	    const item = {
+	        "$event_id": {{ line_item.key | json }},
+	        "ProductName": "{{ line_item.product.title | remove: "'" | remove: '"' }}",
+	        "VariantName": "{{ line_item.variant.title | remove: "'" | remove: '"' }}",
+	        "ProductID": "{{ line_item.product_id }}",
+	        "VariantID": "{{ line_item.variant_id }}",
+	        "ProductType": {{  line_item.product.type |  json }},
+	        "Variant": {{ line_item.options_with_values | json }},
+	        "SKU": {{ line_item.sku | json }},
+	        "Brand": "Eagle-Eye Tours",
+	        "Quantity": "{{ line_item.quantity }}",
+	        "Price": "{{ line_item.price | money_without_currency | remove: ","}}",
+	    };
 
-            // Identifying a person and tracking special Klaviyo properties.
-
-            _learnq.push(['identify', {
-                    '$email' : '{{ checkout.customer.email }}',
-                    '$first_name' : '{{ checkout.customer.first_name }}',
-                    '$last_name' : '{{ checkout.customer.last_name }}'
-                }]);
-
-
-            //console.log('Klaviyo event "Ordered Product" fired');
-            //console.log( item );
-            _learnq.push(["track", "Ordered CAD Product", item ]);
-
-        {% endif %}
-    {% endfor %}
+		{% if first_time_accessed %}
+		    //console.log('Klaviyo event "Ordered Product" fired');
+		    //console.log( item );
+		    _learnq.push(["track", "Ordered CAD Product", item ]);
+		{% endif %}
+	{% endfor %}
 </script>
