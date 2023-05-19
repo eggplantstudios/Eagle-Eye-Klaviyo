@@ -18,7 +18,7 @@
 
 	{% for line_item in checkout.line_items %}
 
-	    const item = {
+	    const item_{{ line_item.variant_id }} = {
 	        "$event_id": {{ line_item.key | json }},
 	        "ProductName": "{{ line_item.product.title | remove: "'" | remove: '"' }}",
 	        "VariantName": "{{ line_item.variant.title | remove: "'" | remove: '"' }}",
@@ -32,10 +32,11 @@
 	        "Price": "{{ line_item.price | money_without_currency | remove: ","}}",
 	    };
 
+
 		{% if first_time_accessed %}
-		    //console.log('Klaviyo event "Ordered Product" fired');
-		    //console.log( item );
-		    _learnq.push(["track", "Ordered CAD Product", item ]);
-		{% endif %}
+		    //console.log('Klaviyo event "Ordered CAD Product" fired');
+		    //console.log( item_{{ line_item.variant_id }}  );
+		    _learnq.push(["track", "Ordered CAD Product", item_{{ line_item.variant_id }}  ]);
+        {% endif %}
 	{% endfor %}
 </script>

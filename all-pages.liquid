@@ -43,8 +43,8 @@
         };
 
 	    _learnq.push(["track", "Viewed CAD Product", item]);
-	    //console.log( item );
-	    //console.log('Klaviyo event "Viewed Product" fired.' );
+	    console.log( item );
+	    console.log('Klaviyo event "Viewed Product" fired.' );
 
 	    let addToCartElement = document.querySelector('form button.btn-success');
 
@@ -68,8 +68,8 @@
 	            };
 
 	            _learnq.push(["track", "Added to CAD Cart", item]);
-	            //console.log( item );
-	            //console.log('Klaviyo event "Added to Cart" fired.' );
+	            console.log( item );
+	            console.log('Klaviyo event "Added to Cart" fired.' );
 	        });
 
 	    }
@@ -82,12 +82,11 @@
 	    if( checkoutElement )
 	    {
 
-
             checkoutElement.addEventListener('click', function (e) {
 
 	            {% for line_item in cart.items %}
 
-	                const item = {
+	                let item_{{ line_item.variant_id }} = {
                         "$event_id": {{ line_item.key | json }},
                         "ProductName": "{{ line_item.product.title | remove: "'" | remove: '"' }}",
                         "VariantName": "{{ line_item.variant.title | remove: "'" | remove: '"' }}",
@@ -101,11 +100,11 @@
                         "Price": "{{ line_item.price | money_without_currency | remove: ","}}",
                     };
 
-                    _learnq.push(["track", "Started CAD Checkout", item]);
-	                //console.log( item );
-	                //console.log('Klaviyo event "Started CAD Checkout" fired.' );
+                    _learnq.push(["track", "Started CAD Checkout", item_{{ line_item.variant_id }} ]);
+	                console.log( item_{{ line_item.variant_id }} );
+	                console.log('Klaviyo event "Started CAD Checkout" fired.' );
+
 	            {% endfor %}
-				alert('added');
 	        });
 
 	    }
